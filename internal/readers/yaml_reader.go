@@ -1,7 +1,6 @@
-package reader
+package readers
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/pkg/errors"
@@ -14,7 +13,7 @@ func New() *YamlReader {
 	return &YamlReader{}
 }
 
-func (r *YamlReader) Read(filepath string) (result map[interface{}]interface{}, err error) {
+func (r *YamlReader) Read(filepath string) (result map[any]any, err error) {
 
 	rawYAML, err := os.ReadFile(filepath)
 	if err != nil {
@@ -29,12 +28,19 @@ func (r *YamlReader) Read(filepath string) (result map[interface{}]interface{}, 
 	return result, nil
 }
 
-func (r *YamlReader) ToStringMap(raw map[interface{}]interface{}) (map[string]string, error) {
+func (r *YamlReader) ToStringMap(raw map[any]any) (map[string]string, error) {
 	result := make(map[string]string, len(raw))
 
 	for k, v := range raw {
-		kstr := fmt.Sprintf("%v", k)
-		vstr := fmt.Sprintf("%v", v)
+		kstr, ok := k.(string)
+		if !ok {
+			return nil, errors.New("Can't convert key to string")
+		}
+		vstr, ok := v.(string)
+		if !ok {
+			return nil, errors.New("Can't convert value to string")
+		}
+
 		result[kstr] = vstr
 	}
 	return result, nil
