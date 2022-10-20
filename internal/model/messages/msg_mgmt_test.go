@@ -18,7 +18,7 @@ func Test_OnMessage_ShouldSendIt(t *testing.T) {
 
 	mockSender.EXPECT().SendMessage("Hello, World!", exampleID)
 
-	err := model.Send(Message{
+	err := model.Send(&Message{
 		Text:   "Hello, World!",
 		UserID: exampleID,
 	})

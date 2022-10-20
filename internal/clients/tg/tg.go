@@ -1,6 +1,8 @@
 package tg
 
 import (
+	"log"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/kolya_cypandin/project-base/internal/common"
@@ -8,7 +10,6 @@ import (
 	"gitlab.ozon.dev/kolya_cypandin/project-base/internal/model/command"
 	"gitlab.ozon.dev/kolya_cypandin/project-base/internal/model/messages"
 	"gitlab.ozon.dev/kolya_cypandin/project-base/internal/util"
-	"log"
 )
 
 type Tg struct {

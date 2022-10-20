@@ -1,8 +1,9 @@
 package commands
 
 import (
-	"gitlab.ozon.dev/kolya_cypandin/project-base/internal/common"
 	"strings"
+
+	"gitlab.ozon.dev/kolya_cypandin/project-base/internal/common"
 )
 
 type StartCommand struct{}

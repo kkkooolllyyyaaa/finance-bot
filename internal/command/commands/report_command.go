@@ -1,12 +1,13 @@
 package commands
 
 import (
+	"strings"
+
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/kolya_cypandin/project-base/internal/common"
 	"gitlab.ozon.dev/kolya_cypandin/project-base/internal/model/expense"
 	service "gitlab.ozon.dev/kolya_cypandin/project-base/internal/service/expense"
 	"gitlab.ozon.dev/kolya_cypandin/project-base/internal/util"
-	"strings"
 )
 
 type ReportCommand struct {
