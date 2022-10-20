@@ -14,7 +14,6 @@ func New() *YamlReader {
 }
 
 func (r *YamlReader) Read(filepath string) (result map[any]any, err error) {
-
 	rawYAML, err := os.ReadFile(filepath)
 	if err != nil {
 		return result, errors.Wrap(err, "reading config file")

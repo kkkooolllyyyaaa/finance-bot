@@ -5,7 +5,7 @@ import (
 	"gitlab.ozon.dev/kolya_cypandin/project-base/internal/model/reader"
 )
 
-const secretsFile = "config/secrets/tg-bot-api.yaml"
+const secretsFile = "config/secrets/secrets.yaml"
 
 type SecretManager struct {
 	data map[string]string

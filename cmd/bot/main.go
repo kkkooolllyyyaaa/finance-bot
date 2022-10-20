@@ -58,4 +58,8 @@ func initCommands(registry *command.Registry, expenseMgmtService *service.MgmtSe
 			registry.Commands(),
 		),
 	)
+	registry.AddCommand(
+		"/start",
+		commands.NewStartCommand(),
+	)
 }

@@ -56,15 +56,15 @@ func (c *Tg) ListenUpdates(msgModel *messages.Model) {
 		userID := update.Message.From.ID
 
 		log.Println("Trying to execute got command...")
-		result := c.tryToExecute(text, userID)
+		toSend := c.tryToExecute(text, userID)
 
 		log.Println("Sending message...")
-		err := msgModel.Send(messages.Message{
-			Text:   result,
-			UserID: userID,
-		})
-
-		if err != nil {
+		if err := msgModel.Send(
+			messages.Message{
+				Text:   toSend,
+				UserID: userID,
+			},
+		); err != nil {
 			log.Println("Error sending message:", err)
 			continue
 		}
@@ -87,17 +87,21 @@ func (c *Tg) tryToExecute(text string, userID int64) string {
 	result, err := c.cmdRegistry.Execute(cmd, args)
 	if err != nil {
 		log.Printf("error executing command cmd=%s, args=%s, err=%s", cmd, args, err)
-		if errors.Is(err, command.ErrCommandNotFound) {
-			return common.UnknownCommand
-		}
-		if errors.Is(err, common.ErrIncorrectArgument) {
-			return common.CommandIncorrectFormatError
-		}
-		if errors.Is(err, common.ErrIncorrectArgsCount) {
-			return common.CommandIncorrectArgsCountError
-		}
-		return common.CommandExecutionError
+		return errToPublicMessage(err)
 	}
 
 	return result
+}
+
+func errToPublicMessage(err error) string {
+	if errors.Is(err, command.ErrCommandNotFound) {
+		return common.UnknownCommand
+	}
+	if errors.Is(err, common.ErrIncorrectArgument) {
+		return common.CommandIncorrectFormatError
+	}
+	if errors.Is(err, common.ErrIncorrectArgsCount) {
+		return common.CommandIncorrectArgsCountError
+	}
+	return common.CommandExecutionError
 }
