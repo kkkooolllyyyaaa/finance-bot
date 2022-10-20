@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-
 	"gitlab.ozon.dev/kolya_cypandin/project-base/internal/clients/tg"
 	"gitlab.ozon.dev/kolya_cypandin/project-base/internal/command/commands"
 	"gitlab.ozon.dev/kolya_cypandin/project-base/internal/config"
@@ -12,6 +10,7 @@ import (
 	"gitlab.ozon.dev/kolya_cypandin/project-base/internal/readers"
 	repo "gitlab.ozon.dev/kolya_cypandin/project-base/internal/repository/expense"
 	service "gitlab.ozon.dev/kolya_cypandin/project-base/internal/service/expense"
+	"log"
 )
 
 func main() {

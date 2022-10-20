@@ -41,7 +41,7 @@ func (c *Tg) SendMessage(text string, userID int64) error {
 	return nil
 }
 
-func (c *Tg) ListenUpdates(msgModel *messages.Model) {
+func (c *Tg) ListenUpdates(msgMgmtModel *messages.Model) {
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout, _ = util.ParseInt(c.configManager.UpdateTimeout())
 	updates := c.tg.GetUpdatesChan(u)
@@ -54,13 +54,17 @@ func (c *Tg) ListenUpdates(msgModel *messages.Model) {
 
 		text := update.Message.Text
 		userID := update.Message.From.ID
+		log.Printf("[%d] %s", userID, text)
 
 		log.Println("Trying to execute got command...")
-		toSend := c.tryToExecute(text, userID)
+		toSend, err := c.execute(text, userID)
+		if err != nil {
+			toSend = errToPublicMessage(err)
+		}
 
 		log.Println("Sending message...")
-		if err := msgModel.Send(
-			messages.Message{
+		if err := msgMgmtModel.Send(
+			&messages.Message{
 				Text:   toSend,
 				UserID: userID,
 			},
@@ -71,12 +75,12 @@ func (c *Tg) ListenUpdates(msgModel *messages.Model) {
 	}
 }
 
-func (c *Tg) tryToExecute(text string, userID int64) string {
+func (c *Tg) execute(text string, userID int64) (result string, err error) {
 	log.Printf("[%d] %s", userID, text)
 	cmd, args, err := util.ParseCommand(text)
 	if err != nil {
 		log.Println("error parsing command", err)
-		return common.IsNotACommandError
+		return result, err
 	}
 
 	args = append([]string{
@@ -84,13 +88,13 @@ func (c *Tg) tryToExecute(text string, userID int64) string {
 	}, args...)
 
 	log.Printf("Executing command=%s with args=%s", cmd, args)
-	result, err := c.cmdRegistry.Execute(cmd, args)
+	result, err = c.cmdRegistry.Execute(cmd, args)
 	if err != nil {
 		log.Printf("error executing command cmd=%s, args=%s, err=%s", cmd, args, err)
-		return errToPublicMessage(err)
+		return result, err
 	}
 
-	return result
+	return result, nil
 }
 
 func errToPublicMessage(err error) string {
@@ -102,6 +106,9 @@ func errToPublicMessage(err error) string {
 	}
 	if errors.Is(err, common.ErrIncorrectArgsCount) {
 		return common.CommandIncorrectArgsCountError
+	}
+	if errors.Is(err, util.ErrNotACommand) {
+		return common.IsNotACommandError
 	}
 	return common.CommandExecutionError
 }

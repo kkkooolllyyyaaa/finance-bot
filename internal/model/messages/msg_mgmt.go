@@ -19,6 +19,6 @@ type Message struct {
 	UserID int64
 }
 
-func (m *Model) Send(msg Message) error {
+func (m *Model) Send(msg *Message) error {
 	return m.sender.SendMessage(msg.Text, msg.UserID)
 }

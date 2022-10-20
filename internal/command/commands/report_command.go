@@ -1,13 +1,12 @@
 package commands
 
 import (
-	util2 "gitlab.ozon.dev/kolya_cypandin/project-base/internal/util"
-	"strings"
-
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/kolya_cypandin/project-base/internal/common"
 	"gitlab.ozon.dev/kolya_cypandin/project-base/internal/model/expense"
 	service "gitlab.ozon.dev/kolya_cypandin/project-base/internal/service/expense"
+	"gitlab.ozon.dev/kolya_cypandin/project-base/internal/util"
+	"strings"
 )
 
 type ReportCommand struct {
@@ -26,27 +25,18 @@ var errIncorrectDays = errors.Wrap(
 )
 
 func (c *ReportCommand) Execute(args []string) (result string, err error) {
-	if len(args) != 2 {
-		return result, common.ErrIncorrectArgsCount
-	}
-
-	userID, err := util2.ParseInt64(args[0])
+	userID, days, err := extractReportCommandArguments(args)
 	if err != nil {
-		return result, common.ErrIncorrectUserID
-	}
-
-	days, err := util2.ParseInt64(args[1])
-	if err != nil {
-		return result, errIncorrectDays
-	}
-	ok := util2.ValidateNatural(days)
-	if !ok {
-		return result, errIncorrectDays
+		return result, errors.Wrap(err, "Error while extracting arguments")
 	}
 
 	categoriesExpenses := c.service.GetCategoriesExpenses(userID, days)
+	var categoriesAmount float64 = 0
+	for _, ce := range categoriesExpenses {
+		categoriesAmount += ce.Amount
+	}
 
-	return reportCommandMessage(categoriesExpenses), nil
+	return reportCommandMessage(categoriesExpenses, categoriesAmount), nil
 }
 
 func (c *ReportCommand) Description() string {
@@ -57,11 +47,16 @@ func (c *ReportCommand) Description() string {
 	return builder.String()
 }
 
-func reportCommandMessage(categoriesExpenses []expense.CategoryExpense) string {
+func reportCommandMessage(categoriesExpenses []expense.CategoryExpense, categoriesAmount float64) string {
 	builder := strings.Builder{}
 
+	builder.WriteString("Всего потрачено: ")
+	categoriesAmountStr := util.FormatFloat(categoriesAmount)
+	builder.WriteString(categoriesAmountStr)
+	builder.WriteString("\n")
+
 	builder.WriteString("Всего категорий: ")
-	countStr := util2.FormatInt(int64(len(categoriesExpenses)))
+	countStr := util.FormatInt(int64(len(categoriesExpenses)))
 	builder.WriteString(countStr)
 	builder.WriteString("\n")
 
@@ -70,9 +65,28 @@ func reportCommandMessage(categoriesExpenses []expense.CategoryExpense) string {
 		builder.WriteString(ce.Category)
 
 		builder.WriteString(" Сумма: ")
-		amountStr := util2.FormatFloat(ce.Amount)
+		amountStr := util.FormatFloat(ce.Amount)
 		builder.WriteString(amountStr)
 		builder.WriteString("\n")
 	}
 	return builder.String()
+}
+
+func extractReportCommandArguments(args []string) (userID, days int64, err error) {
+	if len(args) != 2 {
+		return userID, days, common.ErrIncorrectArgsCount
+	}
+
+	userID, err = util.ParseInt64(args[0])
+	if err != nil {
+		return userID, days, common.ErrIncorrectUserID
+	}
+
+	days, err = util.ParseInt64(args[1])
+	ok := util.ValidateNatural(days)
+	if err != nil || !ok {
+		return userID, days, errIncorrectDays
+	}
+
+	return userID, days, nil
 }

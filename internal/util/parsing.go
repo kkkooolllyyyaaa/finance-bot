@@ -7,14 +7,14 @@ import (
 	"github.com/pkg/errors"
 )
 
-var errNotACommand = errors.New("It's not a command")
+var ErrNotACommand = errors.New("It's not a command")
 
 func ParseCommand(text string) (command string, args []string, err error) {
 	text = strings.TrimSpace(text)
 	text = strings.ToLower(text)
 
 	if !strings.HasPrefix(text, "/") {
-		err = errNotACommand
+		err = ErrNotACommand
 		return
 	}
 

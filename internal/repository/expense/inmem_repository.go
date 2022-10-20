@@ -14,8 +14,8 @@ func NewInMemRepository() *InMemRepository {
 	}
 }
 
-func (r *InMemRepository) Add(expense expense.Expense) error {
-	r.expenses[expense.UserID] = append(r.expenses[expense.UserID], expense)
+func (r *InMemRepository) Add(expense *expense.Expense) error {
+	r.expenses[expense.UserID] = append(r.expenses[expense.UserID], *expense)
 	return nil
 }
 

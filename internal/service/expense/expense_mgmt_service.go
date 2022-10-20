@@ -17,7 +17,7 @@ func NewMgmtService(repository expenseRepo.Repository) *MgmtService {
 	}
 }
 
-func (s *MgmtService) Add(expense expense.Expense) error {
+func (s *MgmtService) Add(expense *expense.Expense) error {
 	return s.repository.Add(expense)
 }
 

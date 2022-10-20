@@ -1,9 +1,8 @@
 package commands
 
 import (
-	"strings"
-
 	"gitlab.ozon.dev/kolya_cypandin/project-base/internal/model/command"
+	"strings"
 )
 
 type HelpCommand struct {
