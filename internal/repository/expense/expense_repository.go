@@ -6,7 +6,7 @@ import (
 
 type Repository interface {
 	Add(*expense.Expense) error
-	GetAllOfUser(int64) []expense.Expense
-	GetAllByCategoryOfUser(int64, string) []expense.Expense
-	GetAllGroupedByCategories(int64) map[string][]expense.Expense
+	GetAllOfUser(int64) []*expense.Expense
+	GetAllByCategoryOfUser(int64, string) []*expense.Expense
+	GetAllGroupedByCategories(int64) map[string][]*expense.Expense
 }

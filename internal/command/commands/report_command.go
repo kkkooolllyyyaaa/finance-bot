@@ -1,13 +1,12 @@
 package commands
 
 import (
-	"strings"
-
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/kolya_cypandin/project-base/internal/common"
 	"gitlab.ozon.dev/kolya_cypandin/project-base/internal/model/expense"
 	service "gitlab.ozon.dev/kolya_cypandin/project-base/internal/service/expense"
 	"gitlab.ozon.dev/kolya_cypandin/project-base/internal/util"
+	"strings"
 )
 
 type ReportCommand struct {
@@ -48,7 +47,7 @@ func (c *ReportCommand) Description() string {
 	return builder.String()
 }
 
-func reportCommandMessage(categoriesExpenses []expense.CategoryExpense, categoriesAmount float64) string {
+func reportCommandMessage(categoriesExpenses []*expense.CategoryExpense, categoriesAmount float64) string {
 	builder := strings.Builder{}
 
 	builder.WriteString("Всего потрачено: ")
