@@ -1,6 +1,8 @@
 package tg
 
 import (
+	"log"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/kolya_cypandin/project-base/internal/common"
@@ -8,7 +10,6 @@ import (
 	"gitlab.ozon.dev/kolya_cypandin/project-base/internal/model/command"
 	"gitlab.ozon.dev/kolya_cypandin/project-base/internal/model/messages"
 	"gitlab.ozon.dev/kolya_cypandin/project-base/internal/util"
-	"log"
 )
 
 type Tg struct {
@@ -56,31 +57,31 @@ func (c *Tg) ListenUpdates(msgMgmtModel *messages.Model) {
 		userID := update.Message.From.ID
 		log.Printf("[%d] %s", userID, text)
 
-		var toSend string
+		var toSend *string
 		cmd, args, err := extractArguments(text, userID)
 		if err != nil {
 			log.Println("Got error while parsing arguments:", err)
-			toSend = errToPublicMessage(err)
+			*toSend = errToPublicMessage(err)
 		}
 
 		log.Printf("Executing command=%s with args=%s", cmd, args)
-		toSend, err = c.cmdRegistry.Execute(cmd, args)
+		*toSend, err = c.cmdRegistry.Execute(cmd, args)
 		if err != nil {
 			log.Println("Got error while executing command:", err)
-			toSend = errToPublicMessage(err)
+			*toSend = errToPublicMessage(err)
 		}
 
 		log.Println("Command was executed, sending message...")
 		if err := msgMgmtModel.Send(
 			&messages.Message{
-				Text:   toSend,
+				Text:   *toSend,
 				UserID: userID,
 			},
 		); err != nil {
 			log.Println("Error sending message:", err)
 			continue
 		}
-		log.Printf("Message=%s was successfully sent to %d", toSend, userID)
+		log.Printf("Message=%s was successfully sent to %d", *toSend, userID)
 	}
 }
 
