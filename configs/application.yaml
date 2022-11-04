@@ -1,0 +1,5 @@
+timeout: "60"
+messaging-buffer-size: "10"
+messaging-retry-count: "5"
+messaging-workers-count: "5"
+currency-rates-update-tick: "60"
