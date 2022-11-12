@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"gitlab.ozon.dev/kolya_cypandin/project-base/pkg/logger"
 	"sync"
 	"time"
 
@@ -35,14 +36,15 @@ func Run(ctx context.Context, erg *errgroup.Group) error {
 		return err
 	}
 
-	currencyApiImpl := new(currencyApi.Api)
+	currencyApiImpl := currencyApi.NewCurrencyApi()
 	currencyServiceImpl := currencyService.New(currencyApiImpl)
-	erg.Go(func() error {
+	go func() {
 		updateTickSeconds := configManager.CurrencyRatesUpdateTick()
 		ticker := time.NewTicker(time.Duration(updateTickSeconds) * time.Second)
 
-		return currencyServiceImpl.ListenForUpdates(ctx, ticker)
-	})
+		currencyListenerError := currencyServiceImpl.ListenForUpdates(ctx, ticker)
+		logger.Fatal(ctx).Err(currencyListenerError).Msg("Got unexpected error from currency rates listener")
+	}()
 
 	expenseRepositoryImpl := expenseRepository.NewInMemRepository()
 	expenseMgmtService := expenseService.NewMgmtService(expenseRepositoryImpl)

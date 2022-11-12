@@ -43,6 +43,9 @@ func (cr *CurrencyRates) FromToAnotherBase(newBase Currency) (*CurrencyRates, er
 }
 
 func (cr *CurrencyRates) ConvertFromTo(amount float64, from, to Currency) (result float64, err error) {
+	if from == to {
+		return amount, nil
+	}
 	fromCurrencyRates, err := cr.FromToAnotherBase(from)
 	if err != nil {
 		return result, err

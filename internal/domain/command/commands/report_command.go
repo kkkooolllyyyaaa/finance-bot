@@ -64,6 +64,7 @@ func (c *ReportCommand) Execute(args []string) (result string, err error) {
 		userCurrency,
 		currencySign,
 		currencyRates,
+		days,
 	)
 }
 
@@ -81,6 +82,7 @@ func (c *ReportCommand) enrichAndComposeMessage(
 	userCurrency entity.Currency,
 	currencySign string,
 	currencyRates entity.CurrencyRates,
+	days int64,
 ) (result string, err error) {
 	categoriesAmount, err = currencyRates.ConvertFromTo(categoriesAmount, entity.RUB, userCurrency)
 	if err != nil {
@@ -88,7 +90,7 @@ func (c *ReportCommand) enrichAndComposeMessage(
 	}
 
 	builder := strings.Builder{}
-	msg := fmt.Sprintf("Всего потрачено: %.2f %s\n", categoriesAmount, currencySign)
+	msg := fmt.Sprintf("Всего потрачено за %d дней: %.2f %s\n", days, categoriesAmount, currencySign)
 	builder.WriteString(msg)
 
 	msg = fmt.Sprintf("Всего категорий: %d\n", len(categoriesExpenses))
@@ -124,13 +126,17 @@ func (c *ReportCommand) getCurrencyAndSign(userID int64) (currency entity.Curren
 }
 
 func extractReportCommandArguments(args []string) (userID, days int64, err error) {
-	if len(args) != 2 {
+	if len(args) != 1 && len(args) != 2 {
 		return userID, days, common.ErrIncorrectArgsCount
 	}
 
 	userID, err = util.ParseInt64(args[0])
 	if err != nil {
 		return userID, days, common.ErrIncorrectUserID
+	}
+
+	if len(args) == 1 {
+		return userID, 7, nil
 	}
 
 	days, err = util.ParseInt64(args[1])
